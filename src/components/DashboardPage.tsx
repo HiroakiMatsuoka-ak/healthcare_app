@@ -5,6 +5,8 @@ import useUserStore from '@/store/userStore';
 import UserProfile from './UserProfile';
 import CalorieChart from './CalorieChart';
 import MealTracker from './MealTracker';
+import GoalSetting from './GoalSetting';
+import PhotoMealTracker from './PhotoMealTracker';
 
 export default function DashboardPage() {
   const { calculateBMR, meals, addDailyCalories } = useUserStore();
@@ -53,6 +55,11 @@ export default function DashboardPage() {
       </div>
       
       <CalorieChart />
+      
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <GoalSetting />
+        <PhotoMealTracker />
+      </div>
       
       <MealTracker />
     </div>

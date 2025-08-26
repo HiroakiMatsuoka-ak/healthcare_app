@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { PhotoMeal, Goal } from '@/types';
 
 export interface Meal {
   id: string;
@@ -17,6 +18,12 @@ interface UserState {
   weight: number;
   activityLevel: 'sedentary' | 'light' | 'moderate' | 'active' | 'very_active';
   
+  // 目標設定
+  goals: Goal[];
+  
+  // 写真付き食事記録
+  photoMeals: PhotoMeal[];
+
   // 食事記録
   meals: Meal[];
   
@@ -33,6 +40,15 @@ interface UserState {
   removeMeal: (id: string) => void;
   addDailyCalories: (data: { consumed: number; burned: number }) => void;
   
+  // 目標管理アクション
+  addGoal: (goal: Omit<Goal, 'id'>) => void;
+  updateGoal: (id: string, current: number) => void;
+  removeGoal: (id: string) => void;
+  
+  // 写真付き食事記録アクション
+  addPhotoMeal: (meal: Omit<PhotoMeal, 'id'>) => void;
+  removePhotoMeal: (id: string) => void;
+  
   // 計算メソッド
   calculateBMR: () => number;
 }
@@ -48,6 +64,8 @@ const useUserStore = create<UserState>()(
       activityLevel: 'moderate',
       meals: [],
       dailyCalories: [],
+      goals: [],
+      photoMeals: [],
       
       // アクション
       setUserInfo: (info) => set((state) => ({ ...state, ...info })),
@@ -66,8 +84,32 @@ const useUserStore = create<UserState>()(
           ...data
         }]
       })),
+
+      // 目標管理
+      addGoal: (goal) => set((state) => ({
+        goals: [...state.goals, { ...goal, id: Date.now().toString() }]
+      })),
       
-      // Harris-Benedict方程式を使用した基礎代謝量(BMR)の計算
+      updateGoal: (id, current) => set((state) => ({
+        goals: state.goals.map(goal =>
+          goal.id === id ? { ...goal, current } : goal
+        )
+      })),
+      
+      removeGoal: (id) => set((state) => ({
+        goals: state.goals.filter(goal => goal.id !== id)
+      })),
+
+      // 写真付き食事記録
+      addPhotoMeal: (meal) => set((state) => ({
+        photoMeals: [...state.photoMeals, { ...meal, id: Date.now().toString() }]
+      })),
+
+      removePhotoMeal: (id) => set((state) => ({
+        photoMeals: state.photoMeals.filter(meal => meal.id !== id)
+      })),
+      
+      // 計算メソッド
       calculateBMR: () => {
         const state = get();
         let bmr = 0;
